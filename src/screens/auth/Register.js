@@ -1,15 +1,35 @@
 /** @format */
 
-import { ScrollView, Platform, StatusBar } from 'react-native';
+import { ScrollView, Platform, StatusBar, Alert } from 'react-native';
 import React, { useState } from 'react';
 import { globalStyles } from '../../styles/globalStyles';
-import { Button, Input, Row, Section, Text } from '@bsdaoquang/rncomponent';
+import { Button, Input, Loading, Row, Section, Text } from '@bsdaoquang/rncomponent';
+import { HandleAuthentication } from '../../apis/authAPI';
 
 const Register = ({navigation}) => {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
+	const [isLoading, setIsLoading] = useState(false);
 
-	const handleRegister = async () => {};
+	const handleRegister = async () => {
+		if (username && password) {
+			const data = {username, password}
+			const api = `/register`
+
+			setIsLoading(true)
+			try {
+				const res = await HandleAuthentication(api, data, 'post')
+				
+				console.log(res)
+				setIsLoading(false)
+			} catch (error) {
+				console.log(error)
+				setIsLoading(false)
+			}
+		}else{
+			Alert.alert('Lỗi', 'Please enter your username and/or password')
+		}
+	};
 
 	return (
 		<ScrollView
@@ -49,6 +69,7 @@ const Register = ({navigation}) => {
       <Section>
         <Button title='Login' onPress={() => navigation.navigate('Login')} type='link' />
       </Section>
+			<Loading loading={isLoading} />
 		</ScrollView>
 	);
 };
