@@ -1,10 +1,8 @@
 /** @format */
 
-import { ScrollView, StyleSheet, View, Image } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { globalStyles } from '../../styles/globalStyles';
 import {
 	Button,
+	Col,
 	Input,
 	Row,
 	Section,
@@ -12,23 +10,49 @@ import {
 	Text,
 	colors,
 } from '@bsdaoquang/rncomponent';
+import { SimpleLineIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
-import { storage } from '../../firebase/firebaseConfig';
+import React, { useEffect, useState } from 'react';
+import {
+	Image,
+	ScrollView,
+	StyleSheet,
+	TouchableOpacity,
+	View,
+} from 'react-native';
 import { HandleRoomAPI } from '../../apis/roomAPI';
+import { storage } from '../../firebase/firebaseConfig';
+import { globalStyles } from '../../styles/globalStyles';
 
-const initState = {
-	title: '',
-	img: '',
-	type: false,
-	price: '350000',
-	status: 'waiting',
-};
 
-const AddNewRoom = ({ navigation }) => {
+const AddNewRoom = ({ navigation, route }) => {
+	
+	const { detail } = route.params;
+	const initState = {
+		title: '',
+		img: '',
+		type: false,
+		price: '350000',
+		status: 'waiting',
+	};
+
 	// Khi có nhiều hơn 2 state, khai báo theo dạng object để tiện quản lý
 	const [formData, setFormData] = useState(initState);
 	const [file, setFile] = useState();
+
+	useEffect(() => {
+		if (route.params) {
+			
+
+			setFormData({
+				img: detail.img,
+				title: detail.title,
+				price: detail.price,
+				type: detail.type === 'true',
+			});
+		}
+	}, [detail]);
 
 	// Hàm này giúp thay đổi state của formdata
 	const handleChangeData = (val, key) => {
@@ -42,7 +66,7 @@ const AddNewRoom = ({ navigation }) => {
 
 	const handleAddNewRoom = async () => {
 		try {
-			const data = {...formData}
+			const data = { ...formData };
 			if (file) {
 				const storageRef = ref(storage, file.fileName);
 
@@ -51,33 +75,43 @@ const AddNewRoom = ({ navigation }) => {
 				const bytes = await img.blob();
 
 				// upload file to storage firebase
-				const res = await uploadBytes(storageRef, bytes);
+				await uploadBytes(storageRef, bytes);
 
 				// get download url
-				const downloadUrl = await getDownloadURL(storageRef)
+				const downloadUrl = await getDownloadURL(storageRef);
 
 				// update data
-				data.img = downloadUrl
+				data.img = downloadUrl;
 			}
 
-			const api = `/add-new`
-			
-			const res = await HandleRoomAPI(api, data, 'post')
+			const api = detail ? `/update-rooms?id=${detail._id}` : `/add-new`;
 
-			setFile(undefined)
-			setFormData(initState)
+			await HandleRoomAPI(api, data, detail ? 'put' : 'post');
 
-			navigation.goBack()
+			setFile(undefined);
+			setFormData(initState);
 
+			navigation.goBack();
 		} catch (error) {
 			console.log(error);
 		}
 	};
 
-	return (
+	return  (
 		<ScrollView style={[globalStyles.container]}>
 			<Section>
-				<Text text='Tạo phòng mới' size={28} />
+				<Row>
+					<TouchableOpacity onPress={() => navigation.goBack()}> 
+						<SimpleLineIcons name='arrow-left' size={24} color='black' />
+					</TouchableOpacity>
+					<Space width={8} />
+					<Col>
+					<Text 
+						text={route.params ? 'Cập nhật phòng' : 'Tạo phòng mới'}
+						size={28}
+					/>
+					</Col>
+				</Row>
 			</Section>
 			{file ? (
 				<Image
@@ -87,7 +121,13 @@ const AddNewRoom = ({ navigation }) => {
 						height: 220,
 					}}
 				/>
-			) : (
+			): detail && detail.img ?<Image
+			source={{ uri: detail.img }}
+			style={{
+				width: '100%',
+				height: 220,
+			}}
+		/> : (
 				<Section styles={{ paddingTop: 20 }}>
 					<Row>
 						<Button
@@ -191,7 +231,7 @@ const AddNewRoom = ({ navigation }) => {
 				</Row>
 			</Section>
 			<Section>
-				<Button title='Đồng ý' type='primary' onPress={handleAddNewRoom} />
+				<Button title={detail ? 'Cập nhật'  :'Đồng ý'} type='primary' onPress={handleAddNewRoom} />
 			</Section>
 		</ScrollView>
 	);

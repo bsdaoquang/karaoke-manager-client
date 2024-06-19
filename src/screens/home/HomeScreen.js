@@ -1,6 +1,6 @@
 /** @format */
 
-import { View, Image, FlatList, Dimensions } from 'react-native';
+import { View, Image, FlatList, Dimensions, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { globalStyles } from '../../styles/globalStyles';
 import {
@@ -25,13 +25,12 @@ const HomeScreen = ({ navigation }) => {
 	const [isVisibleModalPayment, setIsVisibleModalPayment] = useState(false);
 	const [roomSelected, setRoomSelected] = useState();
 
-	const isFocused = useIsFocused()
+	const isFocused = useIsFocused();
 
 	const WIDTH = (Dimensions.get('window').width - 48) / 2;
 
 	useEffect(() => {
-		isFocused &&
-		getRooms();
+		isFocused && getRooms();
 	}, [isFocused]);
 
 	const getRooms = async () => {
@@ -71,7 +70,7 @@ const HomeScreen = ({ navigation }) => {
 		try {
 			const api = `/payment?id=${item._id}`;
 			const res = await HandleRoomAPI(api);
-			setRoomSelected(item)
+			setRoomSelected(item);
 			setBillDetail(res.data);
 			setIsVisibleModalPayment(true);
 		} catch (error) {
@@ -136,10 +135,9 @@ const HomeScreen = ({ navigation }) => {
 						style={{ paddingTop: 12, flex: 1 }}
 						data={rooms}
 						renderItem={({ item }) => (
-							<View key={item._id} style={[{ width: WIDTH, marginBottom: 16 }]}>
+							<TouchableOpacity onPress={() => navigation.navigate('AddNewRoom', {detail: item})} key={item._id} style={[{ width: WIDTH, marginBottom: 16 }]}>
+								
 								{item.img && (
-									<>
-									
 									<Image
 										source={{ uri: item.img }}
 										style={{
@@ -149,19 +147,6 @@ const HomeScreen = ({ navigation }) => {
 											borderTopRightRadius: 12,
 										}}
 									/>
-									<Button onPress={async () => {
-										try {
-											await HandleRoomAPI(`/delete-room?id=${item._id}`, undefined, 'delete')
-											await getRooms()
-										} catch (error) {
-											console.log(error)
-										}
-									}} styles={{
-										position: 'absolute',
-										right: 10,
-										top: 10
-									}} icon={<Entypo name="trash" size={24} color="coral" />} isShadow={false} inline type='text' />
-									</>
 								)}
 								<View
 									style={{
@@ -192,7 +177,20 @@ const HomeScreen = ({ navigation }) => {
 										isShadow={false}
 									/>
 								</View>
-							</View>
+
+								<Button onPress={async () => {
+										try {
+											await HandleRoomAPI(`/delete-room?id=${item._id}`, undefined, 'delete')
+											await getRooms()
+										} catch (error) {
+											console.log(error)
+										}
+									}} styles={{
+										position: 'absolute',
+										right: 10,
+										top: 10
+									}} icon={<Entypo name="trash" size={24} color="coral" />} isShadow={false} inline type='text' />
+							</TouchableOpacity>
 						)}
 						keyExtractor={(item) => item._id}
 						numColumns={2}
@@ -202,18 +200,18 @@ const HomeScreen = ({ navigation }) => {
 					/>
 				)}
 			</Card>
-			<PaymentModal 
+			<PaymentModal
 				item={roomSelected}
 				bill={billDetail}
 				isVisible={isVisibleModalPayment}
 				onClose={() => {
 					setIsVisibleModalPayment(false);
-					setRoomSelected(undefined)
+					setRoomSelected(undefined);
 				}}
-				onPayment={ async () => {
+				onPayment={async () => {
 					setIsVisibleModalPayment(false);
 					await handleUpdateRoom(roomSelected._id, 'ative');
-					setRoomSelected(undefined)
+					setRoomSelected(undefined);
 					setBillDetail(undefined);
 				}}
 			/>
