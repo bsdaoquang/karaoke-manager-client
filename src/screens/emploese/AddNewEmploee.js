@@ -1,41 +1,45 @@
 /** @format */
 
-import {
-	Button,
-	Col,
-	Input,
-	Loading,
-	Row,
-	Section,
-	Space,
-	Text,
-	numberToString,
-} from '@bsdaoquang/rncomponent';
+import
+	{
+		Button,
+		Col,
+		Input,
+		Loading,
+		Row,
+		Section,
+		Space,
+		Text,
+		numberToString,
+	} from '@bsdaoquang/rncomponent';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import DateTimPicker from '@react-native-community/datetimepicker';
-import React, { useState } from 'react';
-import { ScrollView, TouchableOpacity, Image } from 'react-native';
-import { globalStyles } from '../../styles/globalStyles';
 import * as ImagePicker from 'expo-image-picker';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import React, { useState } from 'react';
+import { Image, ScrollView, TouchableOpacity } from 'react-native';
+import { HandleEmploeeAPI } from '../../apis/emploeeAPI';
 import { storage } from '../../firebase/firebaseConfig';
-
-
-const initState = {
-	name: '',
-	birthday: '',
-	title: '',
-	idNumber: '',
-	phoneNumber: '',
-	hireOfDate: '',
-};
+import { globalStyles } from '../../styles/globalStyles';
 
 const AddNewEmploee = ({ navigation, route }) => {
+	const detail = route.params ? route.params.detail : undefined;
+
+	const initState = detail
+		? { ...detail }
+		: {
+				name: '',
+				birthday: '',
+				title: '',
+				idNumber: '',
+				phoneNumber: '',
+				hireOfDate: '',
+		  };
 	const [formData, setFormData] = useState(initState);
 	const [file, setFile] = useState();
 	const [isVisbleDateTimePicker, setIsVisbleDateTimePicker] = useState(false);
 	const [dateSelectedType, setDateSelectedType] = useState('birthday');
-  const [isLoading, setIsLoading] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
 	const getDate = (time) => {
 		const d = new Date(time);
@@ -51,9 +55,10 @@ const AddNewEmploee = ({ navigation, route }) => {
 		setFormData(items);
 	};
 
-  const handleAddNewEmploee = async () => {
-    setIsLoading(true)
-    try {
+	const handleAddNewEmploee = async () => {
+		setIsLoading(true);
+		const api = detail ? `/update-emploee?id=${detail._id}` : `/add-new`;
+		try {
 			const data = { ...formData };
 			if (file) {
 				const storageRef = ref(storage, file.fileName);
@@ -72,19 +77,18 @@ const AddNewEmploee = ({ navigation, route }) => {
 				data.img = downloadUrl;
 			}
 
-      console.log(data)
-			
-			// await HandleRoomAPI(api, data, detail ? 'put' : 'post');
-      
-			// setFile(undefined);
-			// setFormData(initState);
-      
-      setIsLoading(false)
-			// navigation.goBack();
+			await HandleEmploeeAPI(api, data, detail ? 'put' : 'post');
+
+			setFile(undefined);
+			setFormData(initState);
+
+			setIsLoading(false);
+			detail ? navigation.navigate('EmploeeScreen') : navigation.goBack();
 		} catch (error) {
-			console.log(error); setIsLoading(false)
+			console.log(error);
+			setIsLoading(false);
 		}
-  }
+	};
 
 	return (
 		<ScrollView style={[globalStyles.container]}>
@@ -96,62 +100,63 @@ const AddNewEmploee = ({ navigation, route }) => {
 					<Space width={8} />
 					<Col>
 						<Text
-							text={route.params ? 'Cập nhật phòng' : 'Thêm nhân viên'}
+							text={route.params ? 'Cập nhật' : 'Thêm nhân viên'}
 							size={28}
 						/>
 					</Col>
 				</Row>
 			</Section>
-      <Section>
-      {file ? (
-				<Image
-					source={{ uri: file.uri }}
-					style={{
-						width: '100%',
-						height: 220,
-					}}
-				/>
-			)
-    //   : 
-    //   detail && detail.img ?<Image
-		// 	source={{ uri: detail.img }}
-		// 	style={{
-		// 		width: '100%',
-		// 		height: 220,
-		// 	}}
-		// /> 
-    : (
-				<Section styles={{ paddingTop: 20 }}>
-					<Row>
-						<Button
-							onPress={async () =>
-								await ImagePicker.launchImageLibraryAsync({})
-									.then((result) => {
-										setFile(result.assets[0]);
-									})
-									.catch((error) => console.log(error))
-							}
-							title='upload image'
-							size='small'
-							inline
+			<Section>
+				<Row>
+					{file ? (
+						<Image
+							source={{ uri: file.uri }}
+							style={{
+								width: '50%',
+								height: 220,
+							}}
 						/>
-						<Space width={12} />
-						<Button
-							onPress={async () =>
-								await ImagePicker.launchCameraAsync({})
-									.then((result) => {
-										setFile(result.assets[0]);
-									})
-									.catch((error) => console.log(error))
-							}
-							title='Take a picture'
-							size='small'
-							inline
+					) : detail && detail.img ? (
+						<Image
+							source={{ uri: detail.img }}
+							style={{
+								width: '50%',
+								height: 220,
+							}}
 						/>
-					</Row>
-				</Section>
-			)}
-      </Section>
+					) : (
+						<Section styles={{ paddingTop: 20 }}>
+							<Row>
+								<Button
+									onPress={async () =>
+										await ImagePicker.launchImageLibraryAsync({})
+											.then((result) => {
+												setFile(result.assets[0]);
+											})
+											.catch((error) => console.log(error))
+									}
+									title='upload image'
+									size='small'
+									inline
+								/>
+								<Space width={12} />
+								<Button
+									onPress={async () =>
+										await ImagePicker.launchCameraAsync({})
+											.then((result) => {
+												setFile(result.assets[0]);
+											})
+											.catch((error) => console.log(error))
+									}
+									title='Take a picture'
+									size='small'
+									inline
+								/>
+							</Row>
+						</Section>
+					)}
+				</Row>
+			</Section>
 			<Section>
 				<Input
 					value={formData.name}
@@ -172,30 +177,30 @@ const AddNewEmploee = ({ navigation, route }) => {
 						setIsVisbleDateTimePicker(true);
 					}}
 				/>
-        <Input
+				<Input
 					value={formData.title}
 					onChange={(val) => handleChangeData(val, 'title')}
 					clear
 					placeholder='Chức vụ'
 					label='Chức vụ'
 				/>
-        <Input
+				<Input
 					value={formData.idNumber}
 					onChange={(val) => handleChangeData(val, 'idNumber')}
 					clear
 					placeholder='Số căn cước'
 					label='Số căn cước'
-          keyboardType='number-pad'
+					keyboardType='number-pad'
 				/>
-        <Input
+				<Input
 					value={formData.phoneNumber}
 					onChange={(val) => handleChangeData(val, 'phoneNumber')}
 					clear
 					placeholder='Số điện thoại'
 					label='Số điện thoại'
-          keyboardType='phone-pad'
+					keyboardType='phone-pad'
 				/>
-        <Text text='Ngày vào làm' weight={'500'} />
+				<Text text='Ngày vào làm' weight={'500'} />
 				<Space height={8} />
 				<Button
 					title={formData.hireOfDate ? formData.hireOfDate : 'Chọn'}
@@ -208,10 +213,13 @@ const AddNewEmploee = ({ navigation, route }) => {
 					}}
 				/>
 			</Section>
-      <Section>
-      <Button type='primary' onPress={handleAddNewEmploee} title='Đồng ý' />
-
-      </Section>
+			<Section>
+				<Button
+					type='primary'
+					onPress={handleAddNewEmploee}
+					title={detail ? 'Cập nhật' : 'Đồng ý'}
+				/>
+			</Section>
 			{isVisbleDateTimePicker && (
 				<DateTimPicker
 					mode='date'
@@ -225,8 +233,8 @@ const AddNewEmploee = ({ navigation, route }) => {
 					}}
 				/>
 			)}
-      
-      <Loading loading={isLoading} />
+
+			<Loading loading={isLoading} />
 		</ScrollView>
 	);
 };

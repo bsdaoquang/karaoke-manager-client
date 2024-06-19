@@ -3,16 +3,33 @@
 import { Button, Card, Row, Section } from '@bsdaoquang/rncomponent';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
-import { Image, View } from 'react-native';
+import { Image, View, ScrollView } from 'react-native';
 import { globalStyles } from '../styles/globalStyles';
+import { useNavigation } from '@react-navigation/native';
 
 const Container = (props) => {
-	const { children, isScroll } = props;
+	const { children, isScroll, back } = props;
+	const navigation = useNavigation();
 
 	const content = (
 		<>
 			<Section styles={{ paddingTop: 20 }}>
-				<Row justifyContent='flex-end'>
+				<Row justifyContent={back ? 'space-between' : 'flex-end'}>
+					{back && (
+						<Button
+							inline
+							type='text'
+							onPress={() => navigation.goBack()}
+							icon={
+								<MaterialCommunityIcons
+									name='arrow-left'
+									size={26}
+									color={'white'}
+								/>
+							}
+						/>
+					)}
+
 					<Button
 						inline
 						type='text'
@@ -42,6 +59,7 @@ const Container = (props) => {
 					borderRadius: 0,
 					borderTopRightRadius: 20,
 					borderTopLeftRadius: 20,
+					flex: 1
 				}}>
 				{children}
 			</Card>
