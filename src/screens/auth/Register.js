@@ -5,11 +5,11 @@ import React, { useState } from 'react';
 import { globalStyles } from '../../styles/globalStyles';
 import { Button, Input, Row, Section, Text } from '@bsdaoquang/rncomponent';
 
-const Login = ({navigation}) => {
+const Register = ({navigation}) => {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 
-	const handleLogin = async () => {};
+	const handleRegister = async () => {};
 
 	return (
 		<ScrollView
@@ -21,7 +21,7 @@ const Login = ({navigation}) => {
 				},
 			]}>
 			<Section flex={1} styles={{ marginTop: 20 }}>
-				<Text text='Login' size={32} weight={'bold'} />
+				<Text text='Register' size={32} weight={'bold'} />
 			</Section>
 			<Section>
 				<Input
@@ -44,13 +44,13 @@ const Login = ({navigation}) => {
 				/>
 			</Section>
       <Section>
-        <Button title='Login' type='primary' onPress={handleLogin} />
+        <Button title='Register' type='primary' onPress={handleRegister} />
       </Section>
       <Section>
-        <Button title='Sign up' onPress={() => navigation.navigate('Register')} type='link' />
+        <Button title='Login' onPress={() => navigation.navigate('Login')} type='link' />
       </Section>
 		</ScrollView>
 	);
 };
 
-export default Login;
+export default Register;
