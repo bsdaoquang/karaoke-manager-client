@@ -1,7 +1,7 @@
 /** @format */
 
 import { ScrollView, StyleSheet, View, Image } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { globalStyles } from '../../styles/globalStyles';
 import {
 	Button,
@@ -12,18 +12,23 @@ import {
 	Text,
 	colors,
 } from '@bsdaoquang/rncomponent';
+import * as ImagePicker from 'expo-image-picker';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { storage } from '../../firebase/firebaseConfig';
+import { HandleRoomAPI } from '../../apis/roomAPI';
 
 const initState = {
 	title: '',
 	img: '',
 	type: false,
-	price: '',
-	status: '',
+	price: '350000',
+	status: 'waiting',
 };
 
 const AddNewRoom = ({ navigation }) => {
 	// Khi có nhiều hơn 2 state, khai báo theo dạng object để tiện quản lý
 	const [formData, setFormData] = useState(initState);
+	const [file, setFile] = useState();
 
 	// Hàm này giúp thay đổi state của formdata
 	const handleChangeData = (val, key) => {
@@ -36,34 +41,85 @@ const AddNewRoom = ({ navigation }) => {
 	};
 
 	const handleAddNewRoom = async () => {
-		console.log(formData);
+		try {
+			const data = {...formData}
+			if (file) {
+				const storageRef = ref(storage, file.fileName);
+
+				// console.log(file.uri)
+				const img = await fetch(file.uri);
+				const bytes = await img.blob();
+
+				// upload file to storage firebase
+				const res = await uploadBytes(storageRef, bytes);
+
+				// get download url
+				const downloadUrl = await getDownloadURL(storageRef)
+
+				// update data
+				data.img = downloadUrl
+			}
+
+			const api = `/add-new`
+			
+			const res = await HandleRoomAPI(api, data, 'post')
+
+			setFile(undefined)
+			setFormData(initState)
+
+			navigation.goBack()
+
+		} catch (error) {
+			console.log(error);
+		}
 	};
 
 	return (
 		<ScrollView style={[globalStyles.container]}>
-			{/* <Section styles={{ paddingTop: 20 }}>
-				<Row>
-					<Button title='upload image' size='small' inline />
-					<Space width={12} />
-					<Button title='Take a picture' size='small' inline />
-				</Row>
-			</Section> */}
 			<Section>
 				<Text text='Tạo phòng mới' size={28} />
 			</Section>
-			{formData.img && (
+			{file ? (
 				<Image
-					source={{ uri: formData.img }}
-					style={{ width: '100%', height: 220, resizeMode: 'cover' }}
+					source={{ uri: file.uri }}
+					style={{
+						width: '100%',
+						height: 220,
+					}}
 				/>
+			) : (
+				<Section styles={{ paddingTop: 20 }}>
+					<Row>
+						<Button
+							onPress={async () =>
+								await ImagePicker.launchImageLibraryAsync({})
+									.then((result) => {
+										setFile(result.assets[0]);
+									})
+									.catch((error) => console.log(error))
+							}
+							title='upload image'
+							size='small'
+							inline
+						/>
+						<Space width={12} />
+						<Button
+							onPress={async () =>
+								await ImagePicker.launchCameraAsync({})
+									.then((result) => {
+										setFile(result.assets[0]);
+									})
+									.catch((error) => console.log(error))
+							}
+							title='Take a picture'
+							size='small'
+							inline
+						/>
+					</Row>
+				</Section>
 			)}
+			<Space height={16} />
 			<Section>
-				<Input
-					label='Image url'
-					value={formData.img}
-					onChange={(val) => handleChangeData(val, 'img')}
-					clear
-				/>
 				<Input
 					label='Tên phòng'
 					value={formData.title}
