@@ -19,7 +19,7 @@ const TabNavigator = () => {
 				headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle:{
-          backgroundColor: '#2c3e50'
+          backgroundColor: '#000'
         },
         tabBarIcon: ({focused, size, color}) => {
           size = 24
