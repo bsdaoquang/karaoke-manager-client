@@ -5,12 +5,17 @@ import React, { useState } from 'react';
 import { globalStyles } from '../../styles/globalStyles';
 import { Button, Input, Loading, Row, Section, Text } from '@bsdaoquang/rncomponent';
 import { HandleAuthentication } from '../../apis/authAPI';
+import { useDispatch } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { addAuth } from '../../redux/reducers/authReducer';
 
 
 const Login = ({navigation}) => {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
+
+	const dispatch = useDispatch()
 
 	const handleLogin = async () => {
 			if (username && password) {
@@ -20,8 +25,11 @@ const Login = ({navigation}) => {
 				setIsLoading(true)
 				try {
 					const res = await HandleAuthentication(api, data, 'post')
-					
-					console.log(res)
+
+					// save to get again when user reopen app
+					await AsyncStorage.setItem('authData', JSON.stringify(res.data))
+
+					dispatch(addAuth(res.data))
 					setIsLoading(false)
 				} catch (error) {
 					console.log(error)
