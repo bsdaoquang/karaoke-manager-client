@@ -11,9 +11,9 @@ export default function App() {
 	return (
 		<NavigationContainer>
 
-			<StatusBar style='auto' />
+			<StatusBar style='auto'  />
 			<Provider store={store}>
-				<SafeAreaView style={{flex: 1, backgroundColor: '#000', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 40}}>
+				<SafeAreaView style={{flex: 1,}}>
 				<Router />
 				</SafeAreaView>
 			</Provider>

@@ -47,7 +47,7 @@ const HomeScreen = ({ navigation }) => {
 					marginBottom: 0,
 					borderRadius: 20,
 				}}
-				color='#212121'>
+				>
 				<Row>
 					<Text text='Đặt phòng' size={28} weight='bold' color='#8e44ad' />
 					<Space width={8} />

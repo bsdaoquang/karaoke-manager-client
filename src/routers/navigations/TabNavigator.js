@@ -19,11 +19,11 @@ const TabNavigator = () => {
 				headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle:{
-          backgroundColor: '#000'
+          backgroundColor: '#fafafa'
         },
         tabBarIcon: ({focused, size, color}) => {
           size = 24
-          color = focused ? 'coral' : '#fafafa'
+          color = focused ? 'coral' : '#9e9e9e'
           let icon;
             switch (route.name){
               case 'HomeTab' :

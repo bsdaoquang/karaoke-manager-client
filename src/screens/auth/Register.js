@@ -55,13 +55,14 @@ const Register = ({navigation}) => {
 				},
 			]}>
 			<Section flex={1} styles={{ marginTop: 20 }}>
-				<Text text='Register' size={32} weight={'bold'} />
+				<Text text='Register' color='white' size={32} weight={'bold'} />
 			</Section>
 			<Section>
 				<Input
 					placeholder='User name'
 					label='User name'
 					required
+
 					helpText='Please enter username'
 					value={username}
 					onChange={(val) => setUsername(val)}
