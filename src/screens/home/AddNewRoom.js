@@ -28,7 +28,7 @@ import { globalStyles } from '../../styles/globalStyles';
 
 const AddNewRoom = ({ navigation, route }) => {
 	
-	const { detail } = route.params;
+	const detail = route.params ? route.params.detail : undefined;
 	const initState = {
 		title: '',
 		img: '',

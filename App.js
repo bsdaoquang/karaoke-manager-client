@@ -11,9 +11,9 @@ export default function App() {
 	return (
 		<NavigationContainer>
 
-			<StatusBar style='auto'  />
+			<StatusBar barStyle='ligth-content' translucent backgroundColor={'transparent'}  />
 			<Provider store={store}>
-				<SafeAreaView style={{flex: 1,}}>
+				<SafeAreaView style={{flex: 1, backgroundColor: '#212121', paddingTop: Platform.OS === 'android' ?StatusBar.currentHeight : 40}}>
 				<Router />
 				</SafeAreaView>
 			</Provider>

@@ -1,12 +1,25 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+/** @format */
 
-const EmploeeScreen = () => {
-  return (
-    <View>
-      <Text>EmploeeScreen</Text>
-    </View>
-  )
-}
+import React, { useState } from 'react';
+import Container from '../../components/Container';
+import { Col, Row, Text, Button } from '@bsdaoquang/rncomponent';
 
-export default EmploeeScreen
+const EmploeeScreen = ({ navigation }) => {
+	return (
+		<Container isScroll={false}>
+			<Row justifyContent='space-between'>
+				<Text text='Quản lý' size={28} weight='bold' color='#8e44ad' />
+				<Button
+					inline
+					color='coral'
+					title='Thêm nhân viên'
+					onPress={() => navigation.navigate('AddNewEmploee')}
+					radius={4}
+					size='small'
+				/>
+			</Row>
+		</Container>
+	);
+};
+
+export default EmploeeScreen;

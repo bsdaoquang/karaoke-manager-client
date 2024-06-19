@@ -1,22 +1,27 @@
 /** @format */
 
-import { View, Image, FlatList, Dimensions, TouchableOpacity } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { globalStyles } from '../../styles/globalStyles';
-import {
-	Button,
-	Card,
-	Col,
-	Input,
-	Row,
-	Section,
-	Space,
-	Text,
-} from '@bsdaoquang/rncomponent';
-import { MaterialCommunityIcons, AntDesign, Entypo } from '@expo/vector-icons';
-import { HandleRoomAPI } from '../../apis/roomAPI';
-import PaymentModal from '../../modals/PaymentModal';
+import
+	{
+		Button,
+		Input,
+		Row,
+		Space,
+		Text
+	} from '@bsdaoquang/rncomponent';
+import { AntDesign, Entypo, Ionicons } from '@expo/vector-icons';
 import { useIsFocused } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import
+	{
+		Dimensions,
+		FlatList,
+		Image,
+		TouchableOpacity,
+		View,
+	} from 'react-native';
+import { HandleRoomAPI } from '../../apis/roomAPI';
+import Container from '../../components/Container';
+import PaymentModal from '../../modals/PaymentModal';
 
 const HomeScreen = ({ navigation }) => {
 	const [searchKey, setSearchKey] = useState('');
@@ -79,64 +84,37 @@ const HomeScreen = ({ navigation }) => {
 	};
 
 	return (
-		<View style={[globalStyles.container]}>
-			<Section>
-				<Row justifyContent='flex-end'>
-					<Button
-						inline
-						type='text'
-						icon={
-							<MaterialCommunityIcons name='menu' size={26} color={'white'} />
-						}
-					/>
-				</Row>
-			</Section>
-			<Section>
-				<Image
-					source={require('../../assets/logo.png')}
-					style={{
-						width: '80%',
-						height: 120,
-						resizeMode: 'contain',
-					}}
-				/>
-			</Section>
-			<Card
-				styles={{
-					flex: 1,
-					marginHorizontal: 0,
-					marginBottom: 0,
-					borderRadius: 20,
-				}}>
-				<Row>
+		<Container isScroll={false}>
+				<Row justifyContent='space-between'>
 					<Text text='Đặt phòng' size={28} weight='bold' color='#8e44ad' />
-					<Space width={8} />
 					<Button
 						inline
 						color='coral'
-						title='Chỉnh sửa'
+						icon={<Ionicons name='add-sharp' size={24} color='white' />}
 						onPress={() => navigation.navigate('AddNewRoom')}
 						radius={4}
 						size='small'
 					/>
-					<Space width={8} />
-					<Col>
-						<Input
-							prefix={<AntDesign name='search1' size={24} color='black' />}
-							inline
-							value={searchKey}
-							onChange={(val) => setSearchKey(val)}
-							placeholder='Search'
-						/>
-					</Col>
 				</Row>
 				{rooms.length > 0 && (
 					<FlatList
+						ListHeaderComponent={
+							<Input
+								prefix={<AntDesign name='search1' size={24} color='black' />}
+								value={searchKey}
+								onChange={(val) => setSearchKey(val)}
+								placeholder='Search'
+							/>
+						}
 						style={{ paddingTop: 12, flex: 1 }}
 						data={rooms}
 						renderItem={({ item }) => (
-							<TouchableOpacity onPress={() => navigation.navigate('AddNewRoom', {detail: item})} key={item._id} style={[{ width: WIDTH, marginBottom: 16 }]}>
-								
+							<TouchableOpacity
+								onPress={() =>
+									navigation.navigate('AddNewRoom', { detail: item })
+								}
+								key={item._id}
+								style={[{ width: WIDTH, marginBottom: 16 }]}>
 								{item.img && (
 									<Image
 										source={{ uri: item.img }}
@@ -178,18 +156,29 @@ const HomeScreen = ({ navigation }) => {
 									/>
 								</View>
 
-								<Button onPress={async () => {
+								<Button
+									onPress={async () => {
 										try {
-											await HandleRoomAPI(`/delete-room?id=${item._id}`, undefined, 'delete')
-											await getRooms()
+											await HandleRoomAPI(
+												`/delete-room?id=${item._id}`,
+												undefined,
+												'delete'
+											);
+											await getRooms();
 										} catch (error) {
-											console.log(error)
+											console.log(error);
 										}
-									}} styles={{
+									}}
+									styles={{
 										position: 'absolute',
 										right: 10,
-										top: 10
-									}} icon={<Entypo name="trash" size={24} color="coral" />} isShadow={false} inline type='text' />
+										top: 10,
+									}}
+									icon={<Entypo name='trash' size={24} color='coral' />}
+									isShadow={false}
+									inline
+									type='text'
+								/>
 							</TouchableOpacity>
 						)}
 						keyExtractor={(item) => item._id}
@@ -199,7 +188,7 @@ const HomeScreen = ({ navigation }) => {
 						}}
 					/>
 				)}
-			</Card>
+			
 			<PaymentModal
 				item={roomSelected}
 				bill={billDetail}
@@ -215,7 +204,7 @@ const HomeScreen = ({ navigation }) => {
 					setBillDetail(undefined);
 				}}
 			/>
-		</View>
+		</Container>
 	);
 };
 
